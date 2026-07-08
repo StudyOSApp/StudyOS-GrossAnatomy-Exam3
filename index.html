@@ -1182,6 +1182,106 @@
       border-color:rgba(255,255,255,.14);
     }
 
+    .feedback-effects-button {
+      background:var(--active);
+      border-color:#abcdfc;
+    }
+
+    .feedback-effects-modal .modal-box {
+      max-width:720px;
+      width:min(100%,720px);
+    }
+
+    .feedback-effects-grid {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px 14px;
+      margin-top:12px;
+    }
+
+    .feedback-effects-grid label,
+    .feedback-volume-row {
+      display:grid;
+      gap:6px;
+      min-width:0;
+      font-weight:700;
+    }
+
+    .feedback-effects-grid select,
+    .feedback-effects-grid input[type="range"] {
+      width:100%;
+    }
+
+    .feedback-volume-row {
+      grid-column:1 / -1;
+    }
+
+    .feedback-effects-grid .switchline {
+      min-height:44px;
+      padding:8px 0;
+      font-weight:700;
+    }
+
+    .feedback-effects-note {
+      margin-top:10px;
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.45;
+    }
+
+    .feedback-toast {
+      display:none;
+      margin:4px 0 8px;
+      padding:9px 11px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:rgba(255,255,255,.76);
+      color:var(--ink);
+      font-size:.92rem;
+      font-weight:700;
+      line-height:1.35;
+    }
+
+    .feedback-toast.show { display:block; }
+
+    .feedback-toast.mastery {
+      border-color:#74c991;
+      background:rgba(31,143,77,.14);
+      color:#145c31;
+    }
+
+    .qa-box.feedback-correct-pulse { animation:feedbackCorrectPulse .34s ease-out; }
+    .qa-box.feedback-wrong-pulse { animation:feedbackWrongPulse .28s ease-out; }
+    .qa-box.feedback-mastery-pulse { animation:feedbackMasteryPulse .5s ease-out; }
+
+    @keyframes feedbackCorrectPulse {
+      0% { box-shadow:var(--shadow); }
+      45% { box-shadow:0 0 0 3px rgba(31,143,77,.16), var(--shadow); }
+      100% { box-shadow:var(--shadow); }
+    }
+
+    @keyframes feedbackWrongPulse {
+      0%, 100% { transform:translateX(0); box-shadow:var(--shadow); }
+      35% { transform:translateX(-2px); box-shadow:0 0 0 3px rgba(180,35,24,.12), var(--shadow); }
+      70% { transform:translateX(2px); }
+    }
+
+    @keyframes feedbackMasteryPulse {
+      0% { box-shadow:var(--shadow); }
+      50% { box-shadow:0 0 0 3px rgba(138,97,22,.18), var(--shadow); }
+      100% { box-shadow:var(--shadow); }
+    }
+
+    body[data-theme="dark"] .feedback-toast {
+      background:rgba(5,22,14,.35);
+      border-color:rgba(255,255,255,.14);
+      color:#f4fff8;
+    }
+
+    @media (max-width:720px) {
+      .feedback-effects-grid { grid-template-columns:1fr; }
+    }
+
     .mc-options {
       display:grid;
       gap:11px;
@@ -1858,6 +1958,7 @@
 
               <div class="control-actions">
                 <button id="listQs" type="button">Show Filtered List</button>
+                <button id="openFeedbackEffects" class="feedback-effects-button" type="button">Feedback Effects</button>
                 <button id="resetStats" type="button">Reset Stats</button>
               </div>
             </div>
@@ -1892,6 +1993,8 @@
           <button id="markCorrect" type="button" class="grade-correct hidden">Got it</button>
           <button id="markWrong" type="button" class="grade-wrong hidden">Missed it</button>
         </div>
+
+        <div id="feedbackToast" class="feedback-toast" role="status" aria-live="polite"></div>
 
         <div class="qa-bottom-dock">
           <div id="recentQuestionTrail" class="recent-trail" aria-label="Recent answered questions"></div>
@@ -1932,10 +2035,88 @@
     <div id="questionCreditModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="questionCreditTitle">
       <div class="modal-box">
         <h3 id="questionCreditTitle">Thank You</h3>
-        <p>Thank you to Zack Ingram for writing these posterior abdominal wall questions.</p>
-        <p>I added progress trackers so you can practice them in recall mode or multiple choice and keep an eye on what you have mastered.</p>
+        <p>Thank you to Zack Ingram for writing the original posterior abdominal wall questions.</p>
+        <p>I added the answer choices, distractors, explanations, recall/multiple-choice modes, and progress tracking so you can practice the set and see what you have mastered.</p>
         <div class="modal-actions">
           <button id="closeQuestionCredit" type="button">Start Studying</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="feedbackEffectsModal" class="modal-backdrop feedback-effects-modal hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackEffectsTitle">
+      <div class="modal-box">
+        <h3 id="feedbackEffectsTitle">Feedback Effects</h3>
+        <p class="mini">Optional, conservative audio and visual feedback. Sounds are off by default.</p>
+        <div class="feedback-effects-grid">
+          <label class="switchline">
+            <span>Enable feedback sounds</span>
+            <input id="feedbackSoundsEnabled" type="checkbox" role="switch">
+            <span class="switch-ui" aria-hidden="true"></span>
+          </label>
+          <label class="switchline">
+            <span>Enable milestone sounds</span>
+            <input id="feedbackMilestoneSounds" type="checkbox" role="switch" checked>
+            <span class="switch-ui" aria-hidden="true"></span>
+          </label>
+          <label class="switchline">
+            <span>Enable streak sounds</span>
+            <input id="feedbackStreakSounds" type="checkbox" role="switch" checked>
+            <span class="switch-ui" aria-hidden="true"></span>
+          </label>
+          <label class="switchline">
+            <span>Enable mastery breakthrough sounds</span>
+            <input id="feedbackMasterySounds" type="checkbox" role="switch" checked>
+            <span class="switch-ui" aria-hidden="true"></span>
+          </label>
+          <label class="switchline">
+            <span>Enable subtle visual effects</span>
+            <input id="feedbackVisualEffects" type="checkbox" role="switch" checked>
+            <span class="switch-ui" aria-hidden="true"></span>
+          </label>
+          <div class="feedback-volume-row">
+            <label for="feedbackVolume">Master volume: <span id="feedbackVolumeLabel">40%</span></label>
+            <input id="feedbackVolume" type="range" min="0" max="100" step="1" value="40">
+          </div>
+          <label>Correct answer sound
+            <select id="feedbackCorrectSound">
+              <option value="softChime">Soft Chime</option>
+              <option value="gentlePing">Gentle Ping</option>
+              <option value="warmPop">Warm Pop</option>
+            </select>
+          </label>
+          <label>Incorrect answer sound
+            <select id="feedbackIncorrectSound">
+              <option value="mutedTap">Muted Tap</option>
+              <option value="gentleLowDing">Gentle Low Ding</option>
+              <option value="softClick">Soft Click</option>
+            </select>
+          </label>
+          <label>Streak sound
+            <select id="feedbackStreakSound">
+              <option value="subtleSparkle">Subtle Sparkle</option>
+              <option value="lightRise">Light Rise</option>
+              <option value="minimalTick">Minimal Tick</option>
+            </select>
+          </label>
+          <label>Mastery milestone sound
+            <select id="feedbackMasterySound">
+              <option value="warmSuccess">Warm Success</option>
+              <option value="softLevelUp">Soft Level Up</option>
+              <option value="calmAchievement">Calm Achievement</option>
+            </select>
+          </label>
+          <label>Quiz complete sound
+            <select id="feedbackCompleteSound">
+              <option value="completionChime">Completion Chime</option>
+              <option value="softFinish">Soft Finish</option>
+              <option value="calmResolve">Calm Resolve</option>
+            </select>
+          </label>
+        </div>
+        <p class="feedback-effects-note">Audio uses short built-in tones and can be fully disabled at any time. Visual feedback is subtle and never required to understand quiz results.</p>
+        <div class="modal-actions">
+          <button id="resetFeedbackEffects" type="button">Reset to Defaults</button>
+          <button id="saveFeedbackEffects" type="button">Save/Close</button>
         </div>
       </div>
     </div>
@@ -5184,6 +5365,27 @@ document.addEventListener("DOMContentLoaded", function() {
   var unitProgress = {};
   var storageKey = "grossExam3QuizMemoryV1:" + window.location.pathname;
   var posteriorWallCreditKey = storageKey + ":posteriorWallCreditSeen";
+  var feedbackSettingsKey = storageKey + ":feedbackEffects";
+  var questionPerformanceKey = storageKey + ":questionPerformance";
+  var defaultFeedbackSettings = {
+    soundsEnabled: false,
+    volume: 40,
+    correctSound: "softChime",
+    incorrectSound: "mutedTap",
+    streakSound: "subtleSparkle",
+    masterySound: "warmSuccess",
+    completeSound: "completionChime",
+    milestoneSounds: true,
+    streakSounds: true,
+    masterySounds: true,
+    visualEffects: true
+  };
+  var feedbackSettings = loadFeedbackSettings();
+  var questionPerformance = loadQuestionPerformance();
+  var feedbackAudioContext = null;
+  var feedbackActiveNodes = [];
+  var lastFeedbackSoundAt = 0;
+  var feedbackToastTimer = null;
 
   function isAllWeeksUnit(unitName) {
     return unitName === "All Questions";
@@ -5207,6 +5409,259 @@ document.addEventListener("DOMContentLoaded", function() {
     if (unitName !== "posterior abdominal wall" || hasSeenPosteriorWallCredit()) return;
     markPosteriorWallCreditSeen();
     setClassName("questionCreditModal", "modal-backdrop");
+  }
+
+  function loadFeedbackSettings() {
+    try {
+      var raw = localStorage.getItem(feedbackSettingsKey);
+      return Object.assign({}, defaultFeedbackSettings, raw ? JSON.parse(raw) : {});
+    } catch (error) {
+      return Object.assign({}, defaultFeedbackSettings);
+    }
+  }
+
+  function saveFeedbackSettings() {
+    try {
+      localStorage.setItem(feedbackSettingsKey, JSON.stringify(feedbackSettings));
+    } catch (error) {}
+  }
+
+  function loadQuestionPerformance() {
+    try {
+      return JSON.parse(localStorage.getItem(questionPerformanceKey) || "{}");
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveQuestionPerformance() {
+    try {
+      localStorage.setItem(questionPerformanceKey, JSON.stringify(questionPerformance));
+    } catch (error) {}
+  }
+
+  function feedbackControl(id) {
+    return document.getElementById(id);
+  }
+
+  function setFeedbackControlValues() {
+    function setFeedbackSelectValue(select, value, fallback) {
+      if (!select) return;
+      var hasOption = false;
+      for (var i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === value) hasOption = true;
+      }
+      select.value = hasOption ? value : fallback;
+    }
+
+    var map = {
+      feedbackSoundsEnabled: "soundsEnabled",
+      feedbackMilestoneSounds: "milestoneSounds",
+      feedbackStreakSounds: "streakSounds",
+      feedbackMasterySounds: "masterySounds",
+      feedbackVisualEffects: "visualEffects"
+    };
+
+    Object.keys(map).forEach(function(id) {
+      var el = feedbackControl(id);
+      if (el) el.checked = !!feedbackSettings[map[id]];
+    });
+
+    var volume = feedbackControl("feedbackVolume");
+    var volumeLabel = feedbackControl("feedbackVolumeLabel");
+    if (volume) volume.value = feedbackSettings.volume;
+    if (volumeLabel) volumeLabel.textContent = feedbackSettings.volume + "%";
+
+    setFeedbackSelectValue(feedbackControl("feedbackCorrectSound"), feedbackSettings.correctSound, "softChime");
+    setFeedbackSelectValue(feedbackControl("feedbackIncorrectSound"), feedbackSettings.incorrectSound, "mutedTap");
+    setFeedbackSelectValue(feedbackControl("feedbackStreakSound"), feedbackSettings.streakSound, "subtleSparkle");
+    setFeedbackSelectValue(feedbackControl("feedbackMasterySound"), feedbackSettings.masterySound, "warmSuccess");
+    setFeedbackSelectValue(feedbackControl("feedbackCompleteSound"), feedbackSettings.completeSound, "completionChime");
+  }
+
+  function readFeedbackControlValues() {
+    function checked(id, fallback) {
+      var el = feedbackControl(id);
+      return el ? el.checked : fallback;
+    }
+    function value(id, fallback) {
+      var el = feedbackControl(id);
+      return el ? el.value : fallback;
+    }
+
+    feedbackSettings = {
+      soundsEnabled: checked("feedbackSoundsEnabled", false),
+      volume: Math.max(0, Math.min(100, parseInt(value("feedbackVolume", 40), 10) || 0)),
+      correctSound: value("feedbackCorrectSound", "softChime"),
+      incorrectSound: value("feedbackIncorrectSound", "mutedTap"),
+      streakSound: value("feedbackStreakSound", "subtleSparkle"),
+      masterySound: value("feedbackMasterySound", "warmSuccess"),
+      completeSound: value("feedbackCompleteSound", "completionChime"),
+      milestoneSounds: checked("feedbackMilestoneSounds", true),
+      streakSounds: checked("feedbackStreakSounds", true),
+      masterySounds: checked("feedbackMasterySounds", true),
+      visualEffects: checked("feedbackVisualEffects", true)
+    };
+    saveFeedbackSettings();
+    setFeedbackControlValues();
+  }
+
+  function openFeedbackEffectsModal() {
+    setFeedbackControlValues();
+    setClassName("feedbackEffectsModal", "modal-backdrop feedback-effects-modal");
+  }
+
+  function closeFeedbackEffectsModal() {
+    readFeedbackControlValues();
+    setClassName("feedbackEffectsModal", "modal-backdrop feedback-effects-modal hidden");
+  }
+
+  function resetFeedbackEffects() {
+    feedbackSettings = Object.assign({}, defaultFeedbackSettings);
+    saveFeedbackSettings();
+    setFeedbackControlValues();
+  }
+
+  function stopActiveFeedbackSounds() {
+    feedbackActiveNodes.forEach(function(node) {
+      try { node.stop(0); } catch (error) {}
+      try { node.disconnect(); } catch (error) {}
+    });
+    feedbackActiveNodes = [];
+  }
+
+  function audioContextForFeedback() {
+    var AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtor) return null;
+    if (!feedbackAudioContext) feedbackAudioContext = new AudioCtor();
+    if (feedbackAudioContext.state === "suspended") {
+      feedbackAudioContext.resume().catch(function() {});
+    }
+    return feedbackAudioContext;
+  }
+
+  function soundSequence(name) {
+    var tones = {
+      softChime: [[660, .16, "sine"], [880, .12, "sine"]],
+      gentlePing: [[740, .14, "sine"]],
+      warmPop: [[420, .08, "triangle"], [620, .13, "sine"]],
+      mutedTap: [[170, .11, "triangle"]],
+      gentleLowDing: [[240, .16, "sine"]],
+      softClick: [[210, .07, "square"]],
+      subtleSparkle: [[720, .08, "sine"], [960, .09, "sine"]],
+      lightRise: [[520, .08, "sine"], [700, .11, "sine"]],
+      minimalTick: [[320, .08, "triangle"]],
+      warmSuccess: [[420, .16, "sine"], [560, .16, "sine"], [700, .2, "sine"]],
+      softLevelUp: [[440, .12, "sine"], [560, .13, "sine"], [720, .18, "sine"]],
+      calmAchievement: [[360, .16, "triangle"], [540, .18, "sine"], [640, .22, "sine"]],
+      completionChime: [[440, .12, "sine"], [554, .12, "sine"], [659, .16, "sine"], [880, .22, "sine"]],
+      softFinish: [[520, .16, "sine"], [660, .2, "sine"]],
+      calmResolve: [[660, .14, "sine"], [520, .18, "sine"], [392, .22, "triangle"]]
+    };
+    return tones[name] || tones.softChime;
+  }
+
+  function selectedSoundName(type) {
+    if (type === "correct") return feedbackSettings.correctSound;
+    if (type === "incorrect") return feedbackSettings.incorrectSound;
+    if (type === "streak") return feedbackSettings.streakSound;
+    if (type === "mastery") return feedbackSettings.masterySound;
+    if (type === "complete") return feedbackSettings.completeSound;
+    return "softChime";
+  }
+
+  function playFeedbackSound(type) {
+    if (!feedbackSettings.soundsEnabled) return;
+    if (type === "streak" && !feedbackSettings.streakSounds) return;
+    if (type === "mastery" && (!feedbackSettings.milestoneSounds || !feedbackSettings.masterySounds)) return;
+    if (type === "complete" && !feedbackSettings.milestoneSounds) return;
+    if (feedbackSettings.volume <= 0) return;
+
+    var nowMs = Date.now();
+    if (nowMs - lastFeedbackSoundAt < 90) return;
+    lastFeedbackSoundAt = nowMs;
+
+    var ctx = audioContextForFeedback();
+    if (!ctx) return;
+    stopActiveFeedbackSounds();
+
+    var sequence = soundSequence(selectedSoundName(type));
+    var cursor = ctx.currentTime + .01;
+    var masterVolume = Math.min(.16, Math.max(.01, feedbackSettings.volume / 100 * .16));
+
+    sequence.forEach(function(tone) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.frequency.value = tone[0];
+      osc.type = tone[2] || "sine";
+      gain.gain.setValueAtTime(0.0001, cursor);
+      gain.gain.exponentialRampToValueAtTime(masterVolume, cursor + .018);
+      gain.gain.exponentialRampToValueAtTime(0.0001, cursor + tone[1]);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(cursor);
+      osc.stop(cursor + tone[1] + .03);
+      feedbackActiveNodes.push(osc);
+      cursor += tone[1] * .82;
+    });
+  }
+
+  function triggerSubtleVisualFeedback(type) {
+    if (!feedbackSettings.visualEffects) return;
+    var box = document.querySelector(".qa-box");
+    if (!box) return;
+    var cls = type === "correct"
+      ? "feedback-correct-pulse"
+      : type === "incorrect"
+        ? "feedback-wrong-pulse"
+        : "feedback-mastery-pulse";
+    box.classList.remove(cls);
+    void box.offsetWidth;
+    box.classList.add(cls);
+    window.setTimeout(function() { box.classList.remove(cls); }, 650);
+  }
+
+  function showFeedbackToast(message, kind) {
+    var toast = document.getElementById("feedbackToast");
+    if (!toast) return;
+    toast.textContent = message;
+    toast.className = "feedback-toast show" + (kind ? " " + kind : "");
+    window.clearTimeout(feedbackToastTimer);
+    feedbackToastTimer = window.setTimeout(function() {
+      toast.className = "feedback-toast";
+      toast.textContent = "";
+    }, 3200);
+  }
+
+  function streakSoundDue(streak) {
+    return streak === 5 || streak === 10 || streak === 20 || (streak > 20 && streak % 10 === 0);
+  }
+
+  function updateQuestionPerformance(questionId, wasCorrect) {
+    var stats = questionPerformance[questionId] || {
+      timesSeen: 0,
+      timesMissed: 0,
+      timesCorrect: 0,
+      currentCorrectStreak: 0,
+      previouslyStruggled: false
+    };
+    var wasStruggled = !!stats.previouslyStruggled || stats.timesMissed >= 2;
+    var previousCorrectStreak = stats.currentCorrectStreak || 0;
+
+    stats.timesSeen += 1;
+    if (wasCorrect) {
+      stats.timesCorrect += 1;
+      stats.currentCorrectStreak += 1;
+    } else {
+      stats.timesMissed += 1;
+      stats.currentCorrectStreak = 0;
+    }
+    if (stats.timesMissed >= 2) stats.previouslyStruggled = true;
+
+    questionPerformance[questionId] = stats;
+    saveQuestionPerformance();
+
+    return wasCorrect && wasStruggled && (previousCorrectStreak === 0 || stats.currentCorrectStreak === 2);
   }
 
   function questionInActiveUnit(question) {
@@ -6016,6 +6471,16 @@ document.addEventListener("DOMContentLoaded", function() {
     sessionAttempted += 1;
     if (correct) sessionCorrect += 1;
     currentStreak = correct ? currentStreak + 1 : 0;
+    var masteryBreakthrough = updateQuestionPerformance(question.id, correct);
+    var feedbackType = correct ? "correct" : "incorrect";
+    if (masteryBreakthrough) feedbackType = "mastery";
+    else if (correct && streakSoundDue(currentStreak)) feedbackType = "streak";
+    playFeedbackSound(feedbackType);
+    triggerSubtleVisualFeedback(correct ? "correct" : "incorrect");
+    if (masteryBreakthrough) {
+      triggerSubtleVisualFeedback("mastery");
+      showFeedbackToast("Breakthrough: you corrected a question you had been missing.", "mastery");
+    }
     totalAnswerSeconds += answeredSeconds;
 
     var key = teachingKey(question);
@@ -6251,6 +6716,9 @@ document.addEventListener("DOMContentLoaded", function() {
       var result = addResultCard();
       missedQuestions = missedQuestionsFromAttempts();
       showSummaryModal(result);
+      window.setTimeout(function() {
+        playFeedbackSound("complete");
+      }, 260);
       updateScore();
       saveState();
     }
@@ -6828,6 +7296,7 @@ document.addEventListener("DOMContentLoaded", function() {
   updateUnitIntro();
   updateStudyGuideDashboard();
   showPosteriorWallCreditIfNeeded(activeUnit);
+  setFeedbackControlValues();
 
   onId("randomQ", "click", rebuildAndSave);
   onId("flagQuestion", "click", toggleCurrentFlag);
@@ -6977,9 +7446,17 @@ document.addEventListener("DOMContentLoaded", function() {
   onId("markWrong", "click", function() { gradeRecall(false); });
   onId("listQs", "click", showList);
   onId("resetStats", "click", resetStats);
+  onId("openFeedbackEffects", "click", openFeedbackEffectsModal);
+  onId("saveFeedbackEffects", "click", closeFeedbackEffectsModal);
+  onId("resetFeedbackEffects", "click", resetFeedbackEffects);
 
   onId("closeSummary", "click", function() {
     setClassName("quizSummaryModal", "modal-backdrop hidden");
+  });
+  onId("feedbackEffectsModal", "click", function(event) {
+    if (event.target && event.target.id === "feedbackEffectsModal") {
+      closeFeedbackEffectsModal();
+    }
   });
   onId("closeQuestionCredit", "click", function() {
     setClassName("questionCreditModal", "modal-backdrop hidden");
@@ -7009,6 +7486,11 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   bindControl(modeFilter, rebuildAndSave);
+  bindControl(feedbackControl("feedbackVolume"), function() {
+    var label = feedbackControl("feedbackVolumeLabel");
+    var volume = feedbackControl("feedbackVolume");
+    if (label && volume) label.textContent = volume.value + "%";
+  });
   bindControl(topicFilter, function() {
     updateUnitIntro();
     rebuildAndSave();
