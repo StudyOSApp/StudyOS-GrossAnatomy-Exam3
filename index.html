@@ -2167,7 +2167,7 @@
           </label>
           <label class="switchline">
             <span>Enable subtle visual effects</span>
-            <input id="feedbackVisualEffects" type="checkbox" role="switch" checked>
+            <input id="feedbackVisualEffects" type="checkbox" role="switch">
             <span class="switch-ui" aria-hidden="true"></span>
           </label>
           <div class="feedback-volume-row">
@@ -2176,6 +2176,7 @@
           </div>
           <label>Correct answer sound
             <select id="feedbackCorrectSound">
+              <option value="none">None</option>
               <option value="softChime">Soft Chime</option>
               <option value="gentlePing">Gentle Ping</option>
               <option value="warmPop">Warm Pop</option>
@@ -2183,6 +2184,7 @@
           </label>
           <label>Incorrect answer sound
             <select id="feedbackIncorrectSound">
+              <option value="none">None</option>
               <option value="mutedTap">Muted Tap</option>
               <option value="gentleLowDing">Gentle Low Ding</option>
               <option value="softClick">Soft Click</option>
@@ -2190,6 +2192,7 @@
           </label>
           <label>Streak sound
             <select id="feedbackStreakSound">
+              <option value="none">None</option>
               <option value="subtleSparkle">Subtle Sparkle</option>
               <option value="lightRise">Light Rise</option>
               <option value="minimalTick">Minimal Tick</option>
@@ -2197,6 +2200,7 @@
           </label>
           <label>Mastery milestone sound
             <select id="feedbackMasterySound">
+              <option value="none">None</option>
               <option value="warmSuccess">Warm Success</option>
               <option value="softLevelUp">Soft Level Up</option>
               <option value="calmAchievement">Calm Achievement</option>
@@ -2204,6 +2208,7 @@
           </label>
           <label>Quiz complete sound
             <select id="feedbackCompleteSound">
+              <option value="none">None</option>
               <option value="completionChime">Completion Chime</option>
               <option value="softFinish">Soft Finish</option>
               <option value="calmResolve">Calm Resolve</option>
@@ -7587,7 +7592,7 @@ document.addEventListener("DOMContentLoaded", function() {
     milestoneSounds: true,
     streakSounds: true,
     masterySounds: true,
-    visualEffects: true
+    visualEffects: false
   };
   var feedbackSettings = loadFeedbackSettings();
   var questionPerformance = loadQuestionPerformance();
@@ -7709,7 +7714,7 @@ document.addEventListener("DOMContentLoaded", function() {
       milestoneSounds: checked("feedbackMilestoneSounds", true),
       streakSounds: checked("feedbackStreakSounds", true),
       masterySounds: checked("feedbackMasterySounds", true),
-      visualEffects: checked("feedbackVisualEffects", true)
+      visualEffects: checked("feedbackVisualEffects", false)
     };
     saveFeedbackSettings();
     setFeedbackControlValues();
@@ -7785,6 +7790,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (type === "mastery" && (!feedbackSettings.milestoneSounds || !feedbackSettings.masterySounds)) return;
     if (type === "complete" && !feedbackSettings.milestoneSounds) return;
     if (feedbackSettings.volume <= 0) return;
+    if (selectedSoundName(type) === "none") return;
 
     var nowMs = Date.now();
     if (nowMs - lastFeedbackSoundAt < 90) return;
