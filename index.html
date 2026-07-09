@@ -443,6 +443,7 @@
       min-height:var(--quiz-row-height);
       max-height:var(--quiz-row-height);
       overflow:hidden;
+      padding:12px 14px 8px;
       background:var(--active);
       border-color:rgba(96,211,135,.55);
       color:var(--ink);
@@ -452,10 +453,11 @@
     .qa-box h3 { color:var(--ink); }
 
     #qText {
-      margin:12px 0 9px;
+      min-height:56px;
+      margin:6px 0 5px;
       font-size:20px;
       font-weight:600;
-      line-height:1.5;
+      line-height:1.4;
     }
 
     #qText p {
@@ -727,7 +729,7 @@
       align-items:center;
       gap:8px;
       flex-wrap:wrap;
-      margin:10px 0;
+      margin:5px 0;
     }
 
     .deck-controls button { min-width:78px; }
@@ -771,9 +773,9 @@
 
     .recent-trail {
       display:none;
-      gap:6px;
-      margin:0 0 8px;
-      padding-top:8px;
+      gap:5px;
+      margin:0 0 5px;
+      padding-top:5px;
       border-top:1px solid var(--line);
     }
 
@@ -823,16 +825,16 @@
     .recent-trail-scroll {
       display:flex;
       flex-wrap:wrap;
-      gap:6px;
+      gap:5px;
       overflow:visible;
-      padding:5px 4px 7px;
+      padding:3px 3px 5px;
     }
 
     .recent-trail-item {
       flex:0 0 auto;
       min-width:44px;
-      min-height:30px;
-      padding:5px 9px;
+      min-height:28px;
+      padding:4px 8px;
       border-radius:999px;
       border:1px solid var(--line);
       background:var(--soft);
@@ -908,6 +910,7 @@
 
     .qa-bottom-dock {
       margin-top:auto;
+      flex-shrink:0;
     }
 
     .deck-actions {
@@ -1356,8 +1359,8 @@
 
     .mc-options {
       display:grid;
-      gap:9px;
-      margin:11px 0 10px;
+      gap:6px;
+      margin:6px 0;
     }
 
     .mc-option {
@@ -1366,15 +1369,15 @@
       gap:9px;
       justify-content:flex-start;
       text-align:left;
-      min-height:44px;
+      min-height:40px;
       margin:0;
-      padding:13px 15px;
+      padding:7px 12px;
       background:rgba(255,255,255,.76);
       border-color:var(--line);
       color:var(--ink);
       font-size:17px;
       font-weight:400;
-      line-height:1.5;
+      line-height:1.35;
     }
 
     .mc-option-letter {
