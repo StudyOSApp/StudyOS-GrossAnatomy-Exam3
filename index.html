@@ -270,11 +270,10 @@
 
     .unit-tab {
       display:grid;
-      gap:3px;
       align-content:center;
-      min-height:66px;
-      padding-top:6px;
-      padding-bottom:6px;
+      min-height:54px;
+      padding-top:8px;
+      padding-bottom:8px;
       text-align:left;
       border-color:#c9d4e2;
       background:var(--unit-card);
@@ -283,16 +282,10 @@
 
     .unit-tab strong {
       display:block;
-      font-size:.92rem;
+      font-size:1rem;
       line-height:1.25;
-      color:var(--muted);
-    }
-
-    .unit-tab span {
       color:var(--ink);
-      font-size:1.02rem;
       font-weight:850;
-      line-height:1.25;
     }
 
     .unit-tab.active {
@@ -9428,7 +9421,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
   function unitCardLabel(unitName) {
     var unit = getUnit(unitName);
-    return { label: unitName, title: unit.title || "Course Topic" };
+    if (isAllWeeksUnit(unitName)) return "All Questions";
+    return unit.title || unitName;
   }
 
   function populateConceptFilter() {
@@ -9462,9 +9456,7 @@ document.addEventListener("DOMContentLoaded", function() {
       btn.type = "button";
       btn.className = "unit-tab" + (unit.name === activeUnit ? " active" : "");
       btn.setAttribute("data-unit", unit.name);
-      btn.innerHTML =
-        "<strong>" + htmlEscape(label.label) + "</strong>" +
-        "<span>" + htmlEscape(label.title) + "</span>";
+      btn.innerHTML = "<strong>" + htmlEscape(label) + "</strong>";
       btn.addEventListener("click", function() {
         setActiveUnit(unit.name);
       });
